@@ -1,0 +1,1 @@
+docker build -t web-php --tag="web-php" . && docker run -it -p 80:80 web-php /bin/sh
