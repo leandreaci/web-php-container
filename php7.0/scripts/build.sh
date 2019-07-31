@@ -1,0 +1,1 @@
+docker build -t web-php-7.0 --tag="0.1" .
