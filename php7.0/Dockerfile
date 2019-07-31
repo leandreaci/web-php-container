@@ -14,3 +14,5 @@ RUN chmod 755 /etc/services.d/nginx/run
 #Copy FPM service script
 COPY /config/start-php-fpm7.sh /etc/services.d/php-fpm7/run
 RUN chmod 755 /etc/services.d/php-fpm7/run
+
+WORKDIR /var/www/html 
