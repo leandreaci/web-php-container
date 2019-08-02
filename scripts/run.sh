@@ -1,1 +1,0 @@
-docker run -it -p 80:80 web-php /bin/sh
