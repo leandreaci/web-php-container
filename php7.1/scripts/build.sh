@@ -1,1 +1,1 @@
-docker build -t web-php-7.2 .
+docker build -t web-php-7.1 .
