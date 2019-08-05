@@ -31,17 +31,20 @@ apk add php$PHP_VERSION-xml
 apk add php$PHP_VERSION-dom
 apk add php$PHP_VERSION-dev 
 apk add php$PHP_VERSION-pear
+apk add libnsl
 
 #Instant client
 mkdir /opt/oracle
 unzip /tmp/instantclient-basic-linux.x64-11.2.0.4.0.zip -d /opt/oracle/
 unzip /tmp/instantclient-sdk-linux.x64-11.2.0.4.0.zip -d /opt/oracle/
+cp /usr/lib/libnsl.so.2.0.0 /opt/oracle/instantclient_11_2/
 ln -s /opt/oracle/instantclient_11_2/libclntsh.so.11.1 /opt/oracle/instantclient_11_2/libclntsh.so
 ln -s /opt/oracle/instantclient_11_2/libocci.so.11.1 /opt/oracle/instantclient_11_2/libocci.so
+ln -s /opt/oracle/instantclient_11_2/libnsl.so.2.0.0 /opt/oracle/instantclient_11_2/libnsl.so.1
 
-export LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2
 echo "instantclient,/opt/oracle/instantclient_11_2" | pecl install oci8
-echo 'extension=oci8.so' > /etc/php/7.3/conf.d/30-oci8.ini
+echo 'extension=oci8' > /etc/php/7.3/conf.d/30-oci8.ini
 
 #Nginx
 mkdir /run/nginx

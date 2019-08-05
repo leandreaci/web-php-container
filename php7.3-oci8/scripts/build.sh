@@ -1,1 +1,1 @@
-docker build -t web-php-7.3-oci8 .
+docker build -t web-php-7.3oci8 .
