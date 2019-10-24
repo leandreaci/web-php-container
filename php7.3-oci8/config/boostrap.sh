@@ -50,6 +50,7 @@ echo 'extension=oci8' > /etc/php/7.3/conf.d/30-oci8.ini
 mkdir /run/nginx
 mkdir -p /var/www/html/
 
+mv /tmp/www.conf /etc/php/7.3/php-fpm.d/www.conf
 mv /tmp/nginx.conf /etc/nginx/
 mkdir -p /var/www/html/public/
 
