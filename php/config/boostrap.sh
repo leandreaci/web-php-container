@@ -7,10 +7,7 @@ echo "https://repos.php.earth/alpine/v3.9" >> /etc/apk/repositories
 
 #Essentials
 apk update && apk upgrade
-apk add musl-dev libaio autoconf && apk add --update make
-apk add gcc;
 apk add curl
-apk add pcre
 apk add nginx
 apk add php$PHP_VERSION 
 apk add php$PHP_VERSION-fpm 
@@ -31,28 +28,17 @@ apk add php$PHP_VERSION-xml
 apk add php$PHP_VERSION-dom
 apk add php$PHP_VERSION-dev 
 apk add php$PHP_VERSION-pear
-apk add libnsl
+apk add php$PHP_VERSION-sockets
+apk add php$PHP_VERSION-fileinfo
+apk add php$PHP_VERSION-xmlwriter
 apk add composer
-
-#Instant client
-mkdir /opt/oracle
-unzip /tmp/instantclient-basic-linux.x64-11.2.0.4.0.zip -d /opt/oracle/
-unzip /tmp/instantclient-sdk-linux.x64-11.2.0.4.0.zip -d /opt/oracle/
-cp /usr/lib/libnsl.so.2.0.0 /opt/oracle/instantclient_11_2/
-ln -s /opt/oracle/instantclient_11_2/libclntsh.so.11.1 /opt/oracle/instantclient_11_2/libclntsh.so
-ln -s /opt/oracle/instantclient_11_2/libocci.so.11.1 /opt/oracle/instantclient_11_2/libocci.so
-ln -s /opt/oracle/instantclient_11_2/libnsl.so.2.0.0 /opt/oracle/instantclient_11_2/libnsl.so.1
-
-export LD_LIBRARY_PATH=/opt/oracle/instantclient_11_2
-echo "instantclient,/opt/oracle/instantclient_11_2" | pecl install oci8
-echo 'extension=oci8' > /etc/php/7.3/conf.d/30-oci8.ini
 
 #Nginx
 mkdir /run/nginx
 mkdir -p /var/www/html/
 
-mv /tmp/www.conf /etc/php/7.3/php-fpm.d/www.conf
 mv /tmp/nginx.conf /etc/nginx/
+mv /tmp/www.conf /etc/php/7.3/php-fpm.d/www.conf
 mkdir -p /var/www/html/public/
 
 echo "<?php phpinfo(); ?>" > /var/www/html/public/index.php

@@ -27,8 +27,12 @@ This container is based on linux alpine container.
 
 `$ sh build.sh 7.2`
 
+### Php 7.3 with oci-8
+
+`$ sh build.sh 7.3-oci8`
+
 # Mapping your laravel/Lumen project to container
 
 `$ cd your_project/`
 
-`docker run -it -p 8000:80 -v $(pwd):/var/www/html web-php-7.3 /bin/sh`
+`docker run -it -p 8000:80 -v $(pwd):/var/www/html php-7.3 /bin/sh`
