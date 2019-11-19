@@ -23,6 +23,7 @@ apk add php$PHP_VERSION-pdo_mysql
 apk add php$PHP_VERSION-tokenizer
 apk add php$PHP_VERSION-xml
 apk add php$PHP_VERSION-dom
+apk add composer
 mkdir /run/nginx
 mkdir -p /var/www/html/
 
