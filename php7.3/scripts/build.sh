@@ -1,6 +1,6 @@
 REPOSITORY=leandreaci
-IMAGE=php7.3
-TAG=0.2
+IMAGE=php
+TAG=7.3
 
 docker build -t $IMAGE:$TAG .
 docker tag $IMAGE:$TAG $REPOSITORY/$IMAGE:$TAG
