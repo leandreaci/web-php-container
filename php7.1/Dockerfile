@@ -1,6 +1,12 @@
 FROM alpine:3.9
 ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
-COPY /config/boostrap.sh /uploads/s6-overlay-amd64.tar.gz /config/nginx.conf /config/start-nginx.sh /config/start-php-fpm7.sh tmp/ 
+COPY /config/boostrap.sh \
+    /uploads/s6-overlay-amd64.tar.gz \
+    /config/www.conf \
+    /config/nginx.conf \
+    /config/start-nginx.sh \
+    /config/start-php-fpm7.sh \
+    tmp/
 WORKDIR /tmp/ 
 RUN sh boostrap.sh
 
