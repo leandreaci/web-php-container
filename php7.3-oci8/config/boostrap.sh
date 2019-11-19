@@ -31,6 +31,8 @@ apk add php$PHP_VERSION-xml
 apk add php$PHP_VERSION-dom
 apk add php$PHP_VERSION-dev 
 apk add php$PHP_VERSION-pear
+apk add php$PHP_VERSION-fileinfo
+apk add php$PHP_VERSION-xmlwriter
 apk add libnsl
 apk add composer
 
