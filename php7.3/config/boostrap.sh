@@ -38,7 +38,7 @@ mkdir /run/nginx
 mkdir -p /var/www/html/
 
 mv /tmp/nginx.conf /etc/nginx/
-mv /tmp/www.conf /etc/php/7.3/php-fpm.d/www.conf
+mv /tmp/www.conf /etc/php/$PHP_VERSION/php-fpm.d/www.conf
 mkdir -p /var/www/html/public/
 
 echo "<?php phpinfo(); ?>" > /var/www/html/public/index.php

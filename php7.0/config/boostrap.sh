@@ -1,31 +1,47 @@
 #!bin/sh
 
+PHP_VERSION=7.0
 gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 
 echo "https://repos.php.earth/alpine/v3.7" >> /etc/apk/repositories
-apk add --no-cache php7.0
 
+#Essentials
 apk update && apk upgrade
 apk add curl
 apk add nginx
-apk add php7.0 php7.0-fpm 
-apk add php7.0-opcache 
-apk add php7.0-json php7.0-mbstring 
-apk add php7.0-session php7.0-ctype 
-apk add php7.0-zlib 
-apk add php7.0-curl php7.0-mcrypt
-apk add php7.0-openssl
-apk add php7.0-mysqlnd
-apk add php7.0-mysqli
-apk add php7.0-pdo
-apk add php7.0-pdo_mysql
-apk add php7.0-tokenizer
-apk add php7.0-xml
-apk add php7.0-dom
+apk add php$PHP_VERSION 
+apk add php$PHP_VERSION-fpm 
+apk add php$PHP_VERSION-opcache 
+apk add php$PHP_VERSION-json 
+apk add php$PHP_VERSION-mbstring  
+apk add php$PHP_VERSION-mcrypt
+apk add php$PHP_VERSION-session 
+apk add php$PHP_VERSION-ctype  
+apk add php$PHP_VERSION-zlib
+apk add php$PHP_VERSION-curl
+apk add php$PHP_VERSION-openssl
+apk add php$PHP_VERSION-mysqlnd
+apk add php$PHP_VERSION-mysqli
+apk add php$PHP_VERSION-pdo
+apk add php$PHP_VERSION-pdo_mysql
+apk add php$PHP_VERSION-tokenizer
+apk add php$PHP_VERSION-xml
+apk add php$PHP_VERSION-dom
+apk add php$PHP_VERSION-dev 
+apk add php$PHP_VERSION-pear
+apk add php$PHP_VERSION-sockets
+apk add php$PHP_VERSION-fileinfo
+apk add php$PHP_VERSION-xmlwriter
+apk add composer
+
+#Nginx
 mkdir /run/nginx
 mkdir -p /var/www/html/
 
 mv /tmp/nginx.conf /etc/nginx/
+mv /tmp/www.conf /etc/php/$PHP_VERSION/php-fpm.d/www.conf
 mkdir -p /var/www/html/public/
 
 echo "<?php phpinfo(); ?>" > /var/www/html/public/index.php
+
+rm -r /tmp/*
