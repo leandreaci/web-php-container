@@ -24,13 +24,14 @@ apk add php$PHP_VERSION-mysqli
 apk add php$PHP_VERSION-pdo
 apk add php$PHP_VERSION-pdo_mysql
 apk add php$PHP_VERSION-tokenizer
-apk add php$PHP_VERSION-xml
 apk add php$PHP_VERSION-dom
 apk add php$PHP_VERSION-dev 
 apk add php$PHP_VERSION-pear
 apk add php$PHP_VERSION-sockets
 apk add php$PHP_VERSION-fileinfo
+apk add php$PHP_VERSION-xml
 apk add php$PHP_VERSION-xmlwriter
+apk add php$PHP_VERSION-simplexml
 apk add composer
 
 #Nginx
