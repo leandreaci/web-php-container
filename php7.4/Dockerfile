@@ -1,5 +1,4 @@
-FROM alpine:3.9
-ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
+FROM alpine:3.12
 
 COPY /config/boostrap.sh \
     /uploads/s6-overlay-amd64.tar.gz \
