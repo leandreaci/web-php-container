@@ -22,6 +22,6 @@ RUN chmod 755 /etc/services.d/php-fpm7/run
 COPY /config/start-nginx.sh /etc/services.d/nginx/run
 RUN chmod 755 /etc/services.d/nginx/run
 
-COPY /config/php.ini /etc/php7/php.ini
+COPY /config/php.ini /etc/php7/
 
 WORKDIR /var/www/html 
