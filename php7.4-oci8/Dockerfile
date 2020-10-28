@@ -1,10 +1,7 @@
-FROM alpine:3.9
-ADD https://repos.php.earth/alpine/phpearth.rsa.pub /etc/apk/keys/phpearth.rsa.pub
+FROM alpine:3.12
 
 COPY /config/boostrap.sh \
     /uploads/s6-overlay-amd64.tar.gz \
-    /uploads/instantclient-basic-linux.x64-11.2.0.4.0.zip \
-    /uploads/instantclient-sdk-linux.x64-11.2.0.4.0.zip \
     /config/www.conf \
     /config/nginx.conf \
     /config/start-nginx.sh \
@@ -24,5 +21,7 @@ RUN chmod 755 /etc/services.d/php-fpm7/run
 #Copy NGINX service script
 COPY /config/start-nginx.sh /etc/services.d/nginx/run
 RUN chmod 755 /etc/services.d/nginx/run
+
+COPY /config/php.ini /etc/php7/
 
 WORKDIR /var/www/html 
