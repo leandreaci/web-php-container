@@ -7,7 +7,7 @@ gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories
 apk upgrade --update-cache --available
 cat /etc/alpine-release
-apk add musl-dev libaio autoconf && apk add --update make
+apk add musl-dev libaio libnsl autoconf libc6-compat gcompat && apk add --update make
 apk add gcc;
 apk add pcre
 apk add curl
@@ -36,28 +36,7 @@ apk add php$PHP_VERSION-xmlwriter
 apk add php$PHP_VERSION-simplexml
 apk add composer
 
-# install oci8 libs & extension
-mkdir -p /opt/oracle
-
-wget https://github.com/bumpx/oracle-instantclient/raw/master/instantclient-basic-linux.x64-12.1.0.2.0.zip
-wget https://github.com/bumpx/oracle-instantclient/raw/master/instantclient-sdk-linux.x64-12.1.0.2.0.zip
-
-unzip -o ./instantclient-basic-linux.x64-12.1.0.2.0.zip -d /opt/oracle
-unzip -o ./instantclient-sdk-linux.x64-12.1.0.2.0.zip -d /opt/oracle
-
-ln -s /opt/oracle/instantclient/sqlplus /usr/bin/sqlplus
-ln -s /opt/oracle/instantclient_12_1 /opt/oracle/instantclient
-ln -s /opt/oracle/instantclient/libclntsh.so.12.1 /opt/oracle/instantclient/libclntsh.so
-ln -s /opt/oracle/instantclient/libocci.so.12.1 /opt/oracle/instantclient/libocci.so
-
-export LD_LIBRARY_PATH=/opt/oracle/instantclient
-
-sh -c "echo 'instantclient,/opt/oracle/instantclient' | pecl install oci8"
-
-# setup ld library path
-sh -c "echo '/opt/oracle/instantclient' >> /etc/ld.so.conf"
-ldconfig
-
+sh /tmp/oci8.sh
 
 #Nginx
 mkdir /run/nginx
