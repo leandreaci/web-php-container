@@ -4,7 +4,7 @@ PHP_VERSION=7
 gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 
 #Essentials
-sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories
+# sed -i -e 's/v[[:digit:]]\..*\//edge\//g' /etc/apk/repositories
 apk upgrade --update-cache --available
 cat /etc/alpine-release
 apk add curl
@@ -34,7 +34,7 @@ apk add php$PHP_VERSION-simplexml
 apk add composer
 
 #Nginx
-mkdir /run/nginx
+# mkdir /run/nginx
 mkdir -p /var/www/html/
 
 mv /tmp/nginx.conf /etc/nginx/
