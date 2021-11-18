@@ -22,7 +22,9 @@ ln -s /usr/lib/libnsl.so.2 /usr/lib/libnsl.so.1
 LD_LIBRARY_PATH=/opt/oracle/instantclient:$LD_LIBRARY_PATH
 
 #install oci8
-sh -c "echo 'instantclient,/opt/oracle/instantclient' | pecl install oci8"
+
+sh -c "pecl channel-update pecl.php.net"
+sh -c "echo 'instantclient,/opt/oracle/instantclient' | pecl install oci8-2.2.0"
 
 #enable extension
 echo 'extension=oci8' > /etc/php7/conf.d/03_oci8.ini
