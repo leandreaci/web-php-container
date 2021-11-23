@@ -1,8 +1,10 @@
-FROM alpine:3.12
+FROM alpine:3.13
+USER root
 
 COPY /config/boostrap.sh \
     /config/oci8.sh \
     /uploads/s6-overlay-amd64.tar.gz \
+    /uploads/oci8-2.2.0.tgz \
     /config/www.conf \
     /config/nginx.conf \
     /config/start-nginx.sh \
