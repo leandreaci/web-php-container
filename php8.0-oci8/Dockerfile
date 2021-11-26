@@ -20,11 +20,6 @@ CMD []
 COPY /config/start-php-fpm7.sh /etc/services.d/php-fpm8/run
 RUN chmod 755 /etc/services.d/php-fpm8/run
 
-#RUN wget http://pear.php.net/go-pear.phar
-#RUN /usr/bin/php8 go-pear.phar
-
-#RUN sh oci8.sh
-
 #Copy NGINX service script
 COPY /config/start-nginx.sh /etc/services.d/nginx/run
 RUN chmod 755 /etc/services.d/nginx/run
