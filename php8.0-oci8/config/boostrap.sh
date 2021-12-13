@@ -43,6 +43,8 @@ php -r "if (hash_file('sha384', 'composer-setup.php') === '906a84df04cea2aa72f40
 php composer-setup.php
 php -r "unlink('composer-setup.php');"
 
+mv composer.phar /usr/local/bin/composer
+
 sh /tmp/oci8.sh
 
 #Nginx
