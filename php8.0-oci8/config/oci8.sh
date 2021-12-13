@@ -25,7 +25,7 @@ LD_LIBRARY_PATH=/opt/oracle/instantclient:$LD_LIBRARY_PATH
 
 #install oci8
 /usr/bin/pecl8 channel-update pecl.php.net
-sh -c "echo 'instantclient,/opt/oracle/instantclient' | /usr/bin/pecl8 install oci8"
+sh -c "echo 'instantclient,/opt/oracle/instantclient' | /usr/bin/pecl8 install oci8-3.0.1"
 
 #enable extension
 echo 'extension=oci8' > /etc/php8/conf.d/03_oci8.ini
