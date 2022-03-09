@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.15
 
 COPY /config/boostrap.sh \
     /config/oci8.sh \
