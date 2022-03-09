@@ -6,7 +6,7 @@ COPY /config/boostrap.sh \
     /config/www.conf \
     /config/nginx.conf \
     /config/start-nginx.sh \
-    /config/start-php-fpm7.sh \
+    /config/start-php-fpm.sh \
     tmp/ 
     
 WORKDIR /tmp/ 
@@ -17,13 +17,13 @@ CMD []
 
 
 #Copy FPM service script
-COPY /config/start-php-fpm7.sh /etc/services.d/php-fpm8/run
+COPY /config/start-php-fpm.sh /etc/services.d/php-fpm8/run
 RUN chmod 755 /etc/services.d/php-fpm8/run
 
 #Copy NGINX service script
 COPY /config/start-nginx.sh /etc/services.d/nginx/run
 RUN chmod 755 /etc/services.d/nginx/run
 
-COPY /config/php.ini /etc/php7/
+COPY /config/php.ini /etc/php8/
 
 WORKDIR /var/www/html 
