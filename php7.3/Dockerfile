@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:3.12
 
 COPY /config/boostrap.sh \
     /uploads/s6-overlay-amd64.tar.gz \
