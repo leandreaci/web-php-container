@@ -52,7 +52,7 @@ sh /tmp/oci8.sh
 mkdir -p /var/www/html/
 
 mv /tmp/nginx.conf /etc/nginx/
-mv /tmp/www.conf /etc/php8/php-fpm.d/www.conf
+mv /tmp/www.conf /etc/php81/php-fpm.d/www.conf
 mkdir -p /var/www/html/public/
 
 echo "<?php phpinfo(); ?>" > /var/www/html/public/index.php
