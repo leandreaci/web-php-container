@@ -3,7 +3,7 @@ IMAGE=php
 TAG=7.3
 
 docker build -t $IMAGE:$TAG .
-docker tag $IMAGE:$TAG $REPOSITORY/$IMAGE:$TAG
-docker tag $IMAGE:$TAG $REPOSITORY/$IMAGE:latest
-docker push $REPOSITORY/$IMAGE:$TAG
-docker push $REPOSITORY/$IMAGE:latest
+# docker tag $IMAGE:$TAG $REPOSITORY/$IMAGE:$TAG
+# docker tag $IMAGE:$TAG $REPOSITORY/$IMAGE:latest
+# docker push $REPOSITORY/$IMAGE:$TAG
+# docker push $REPOSITORY/$IMAGE:latest
