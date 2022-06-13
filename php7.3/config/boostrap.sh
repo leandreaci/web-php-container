@@ -1,9 +1,7 @@
 #!bin/sh
 
-PHP_VERSION=7.3
+PHP_VERSION=7
 gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
-
-echo "https://repos.php.earth/alpine/v3.9" >> /etc/apk/repositories
 
 #Essentials
 apk update && apk upgrade
