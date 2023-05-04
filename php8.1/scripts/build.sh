@@ -1,7 +1,7 @@
-REPOSITORY=leandreaci
+REPOSITORY=joaopinheiro
 IMAGE=php
 TAG=8.1
-TAG_DEV=${TAG}_dev
+TAG_DEV=${TAG}-dev
 
 docker build --no-cache -t $IMAGE:$TAG --target production .
 docker tag $IMAGE:$TAG $REPOSITORY/$IMAGE:$TAG
