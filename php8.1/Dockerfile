@@ -35,8 +35,6 @@ RUN apk add --no-cache --update \
         echo 'zend_extension = xdebug.so'; \
         echo ''; \
         echo '[xdebug]'; \
-        echo 'xdebug.mode = debug'; \
-        echo 'xdebug.client_host = host.docker.internal'; \
         echo 'xdebug.client_port = 9003'; \
         echo 'xdebug.discover_client_host = true'; \
         echo 'xdebug.remote_handler = dbgp'; \
