@@ -12,6 +12,9 @@ COPY /config/boostrap.sh \
 WORKDIR /tmp/ 
 RUN sh boostrap.sh
 
+#install composer 2.0
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
 #Copy FPM service script
 COPY /config/start-php-fpm.sh /etc/services.d/php-fpm81/run
 RUN chmod 755 /etc/services.d/php-fpm81/run
