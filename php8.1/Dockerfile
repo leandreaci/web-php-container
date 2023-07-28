@@ -1,4 +1,4 @@
-FROM alpine:3.16
+FROM alpine:3.16 as production
 
 COPY /config/boostrap.sh \
     /uploads/s6-overlay-amd64.tar.gz \
@@ -11,8 +11,8 @@ COPY /config/boostrap.sh \
 WORKDIR /tmp/ 
 RUN sh boostrap.sh
 
-ENTRYPOINT ["/init"]
-CMD []
+#install composer 2.0
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 #Copy FPM service script3.12
 COPY /config/start-php-fpm.sh /etc/services.d/php-fpm81/run
@@ -25,3 +25,24 @@ RUN chmod 755 /etc/services.d/nginx/run
 COPY /config/php.ini /etc/php81/
 
 WORKDIR /var/www/html 
+
+ENTRYPOINT ["/init"]
+CMD []
+
+
+FROM production as development
+
+RUN apk add --no-cache --update \
+    php81-xdebug; \
+    { \
+        echo 'zend_extension = xdebug.so'; \
+        echo ''; \
+        echo '[xdebug]'; \
+        echo 'xdebug.client_port = 9003'; \
+        echo 'xdebug.discover_client_host = true'; \
+        echo 'xdebug.remote_handler = dbgp'; \
+        echo 'xdebug.idekey = PHPSTORM'; \
+        echo 'xdebug.show_error_trace = true'; \
+        echo 'xdebug.max_nesting_level = 250'; \
+        echo 'xdebug.var_display_max_depth = 10'; \
+    } > /etc/php81/conf.d/50_xdebug.ini
