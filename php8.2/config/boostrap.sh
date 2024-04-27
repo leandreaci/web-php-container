@@ -30,6 +30,7 @@ apk add php$PHP_VERSION-redis
 apk add php$PHP_VERSION-session
 apk add php$PHP_VERSION-simplexml
 apk add php$PHP_VERSION-sockets
+apk add php$PHP_VERSION-sodium
 apk add php$PHP_VERSION-tokenizer
 apk add php$PHP_VERSION-xml
 apk add php$PHP_VERSION-xmlwriter
