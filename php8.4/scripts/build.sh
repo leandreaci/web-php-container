@@ -1,8 +1,8 @@
 #!bin/sh
 
-REPOSITORY=renatobalbino
+REPOSITORY=leandreaci
 IMAGE=php
-TAG=8.2
+TAG=8.4
 
 docker build -t $IMAGE:$TAG .
 docker tag $IMAGE:$TAG $REPOSITORY/$IMAGE:$TAG

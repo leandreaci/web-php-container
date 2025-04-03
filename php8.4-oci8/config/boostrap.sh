@@ -1,11 +1,14 @@
 #!bin/sh
 
-PHP_VERSION=82
+PHP_VERSION=84
 
 gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 
 #Essentials
 apk upgrade --update-cache --available
+apk add g++
+apk add make
+apk add libaio
 apk add curl
 apk add nginx
 apk add php$PHP_VERSION 
@@ -36,7 +39,10 @@ apk add php$PHP_VERSION-xml
 apk add php$PHP_VERSION-xmlwriter
 apk add php$PHP_VERSION-zlib
 
-ln -s /usr/bin/php82 /usr/bin/php
+ln -s /usr/bin/php$PHP_VERSION /usr/bin/php
+ln -s /usr/bin/pecl$PHP_VERSION /usr/bin/pecl
+
+sh /tmp/oci8.sh
 
 #Nginx
 mkdir -p /var/www/html/
