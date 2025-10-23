@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build PHP 8.2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
         run: sh ./build.sh 8.2
 
   php83:
@@ -19,6 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build PHP 8.3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
         run: sh ./build.sh 8.3
 
   php84:
@@ -26,6 +32,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Build PHP 8.4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
       run: sh ./build.sh 8.4
 
   php84-oci:
@@ -33,4 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build PHP 8.4-oci8
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
         run: sh ./build.sh 8.4-oci8
