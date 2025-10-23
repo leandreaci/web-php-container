@@ -7,12 +7,30 @@ on:
     branches: [ "master" ]
 
 jobs:
-
-  build:
-
+  php82:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build PHP 8.2
+        run: sh ./build.sh 8.2
 
+  php83:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build PHP 8.3
+        run: sh ./build.sh 8.3
+
+  php84:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Build PHP 8.4
+      run: sh ./build.sh 8.4
+
+  php84-oci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build PHP 8.4-oci8
+        run: sh ./build.sh 8.4-oci8
