@@ -1,6 +1,6 @@
 if [ -z $1 ]
 then
-    PHP_VERSION=8.2
+    PHP_VERSION=8.4
 else
     PHP_VERSION=$1
 fi
