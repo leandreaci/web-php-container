@@ -45,4 +45,4 @@ mkdir -p /var/www/html/public/
 
 echo "<?php phpinfo(); ?>" > /var/www/html/public/index.php
 
-rm -r /tmp/*
+rm -rf /tmp/*
