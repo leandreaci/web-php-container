@@ -8,6 +8,7 @@ on:
 
 jobs:
   login:
+    environment: prod
     runs-on: ubuntu-latest
     steps:
       - name: Login to Docker Hub
