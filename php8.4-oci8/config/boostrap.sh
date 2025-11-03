@@ -59,3 +59,6 @@ composer self-update
 
 #rm -r /tmp/*
 rm /tmp/s6-overlay-amd64.tar.gz
+rm /usr/bin/pecl$PHP_VERSION
+rm /usr/bin/perl
+apk del build-base
