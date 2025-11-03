@@ -1,24 +1,34 @@
-FROM alpine:3.20.3
+FROM alpine:3.19.1
 
-ENV PHP_VERSION=82
+ONBUILD ARG INSTALL_XDEBUG
+ENV INSTALL_XDEBUG=${INSTALL_XDEBUG:-false}
 
 COPY /config/boostrap.sh \
-    /uploads/s6-overlay-amd64.tar.gz \
+    /uploads/* \
     /config/www.conf \
     /config/nginx.conf \
     /config/start-nginx.sh \
     /config/start-php-fpm.sh \
+    /config/xdebug.ini \
     tmp/
     
 WORKDIR /tmp/ 
 RUN sh boostrap.sh
 
+ONBUILD ARG INSTALL_XDEBUG
+ARG INSTALL_XDEBUG=${INSTALL_XDEBUG:-false}
+RUN if [ "$INSTALL_XDEBUG" = true ]; then \
+    echo "Install Xdebug\n" \
+    && apk add php82-dev php82-xdebug \
+    && cp /tmp/xdebug.ini /etc/php82/conf.d/50_xdebug.ini \
+;fi
+
 ENTRYPOINT ["/init"]
 CMD []
 
 #Copy FPM service script3.12
-COPY /config/start-php-fpm.sh /etc/services.d/php-fpm$PHP_VERSION/run
-RUN chmod 755 /etc/services.d/php-fpm$PHP_VERSION/run
+COPY /config/start-php-fpm.sh /etc/services.d/php-fpm82/run
+RUN chmod 755 /etc/services.d/php-fpm82/run
 
 #Copy NGINX service script
 COPY /config/start-nginx.sh /etc/services.d/nginx/run
