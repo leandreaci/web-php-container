@@ -30,6 +30,7 @@ apk add php$PHP_VERSION-sockets
 apk add php$PHP_VERSION-fileinfo
 apk add php$PHP_VERSION-xmlwriter
 apk add php$PHP_VERSION-simplexml
+apk add php$PHP_VERSION-sodium
 apk add php$PHP_VERSION-phar
 apk add php$PHP_VERSION-gd
 
