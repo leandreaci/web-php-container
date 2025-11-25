@@ -1,11 +1,11 @@
-#!bin/sh
+#!/bin/sh
 
 PHP_VERSION=85
 
 gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 
 #Essentials
-apk upgrade --update-cache --available
+apk update upgrade --update-cache --available
 apk add g++
 apk add make
 apk add libaio
