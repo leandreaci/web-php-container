@@ -1,4 +1,4 @@
-FROM alpine:edge
+FROM alpine:3.23
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 ENV PHP_VERSION=85
