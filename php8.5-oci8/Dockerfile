@@ -1,4 +1,5 @@
-FROM alpine:edge
+FROM alpine:3.23
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 ONBUILD ARG INSTALL_XDEBUG
 ENV INSTALL_XDEBUG=${INSTALL_XDEBUG:-false}
