@@ -38,4 +38,6 @@ RUN chmod 755 /etc/services.d/nginx/run
 
 COPY /config/php.ini /etc/php$PHP_VERSION/
 
+RUN chmod -R 755 /var/lib/nginx
+
 WORKDIR /var/www/html 
