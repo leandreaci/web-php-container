@@ -1,8 +1,5 @@
 FROM alpine:3.23
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-
-ONBUILD ARG INSTALL_XDEBUG
-ENV INSTALL_XDEBUG=${INSTALL_XDEBUG:-false}
 ENV PHP_VERSION=85
 
 COPY /config/boostrap.sh \
@@ -12,19 +9,10 @@ COPY /config/boostrap.sh \
     /config/nginx.conf \
     /config/start-nginx.sh \
     /config/start-php-fpm.sh \
-    /config/xdebug.ini \
     tmp/
     
 WORKDIR /tmp/ 
 RUN sh boostrap.sh
-
-ONBUILD ARG INSTALL_XDEBUG
-ARG INSTALL_XDEBUG=${INSTALL_XDEBUG:-false}
-RUN if [ "$INSTALL_XDEBUG" = true ]; then \
-    echo "Install Xdebug\n" \
-    && apk add php$PHP_VERSION-dev php$PHP_VERSION-xdebug \
-    && cp /tmp/xdebug.ini /etc/php$PHP_VERSION/conf.d/50_xdebug.ini \
-;fi
 
 ENTRYPOINT ["/init"]
 CMD []

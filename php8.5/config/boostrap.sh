@@ -5,7 +5,13 @@ gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 
 #Essentials
 apk upgrade --update-cache --available
-apk add curl
+apk add curl ca-certificates
+
+# Add official NGINX repo for latest security fixes (CVE-2026-1642, CVE-2025-53859)
+curl -o /etc/apk/keys/nginx_signing.rsa.pub https://nginx.org/keys/nginx_signing.rsa.pub
+printf "https://nginx.org/packages/mainline/alpine/v3.23/main\n" >> /etc/apk/repositories
+apk update
+
 apk add nginx
 apk add php$PHP_VERSION 
 apk add php$PHP_VERSION-common
