@@ -1,5 +1,6 @@
-FROM alpine:3.23
+FROM alpine:3.24.1
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
 ENV PHP_VERSION=85
 
 COPY /config/boostrap.sh \
