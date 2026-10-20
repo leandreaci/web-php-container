@@ -28,7 +28,15 @@ RUN chmod 755 /etc/services.d/nginx/run
 
 COPY /config/php.ini /etc/php$PHP_VERSION/
 
-RUN mkdir -p /var/lib/nginx/
-RUN chown -R nobody:nobody /var/lib/nginx
+RUN mkdir -p /var/lib/nginx \
+             /var/lib/nginx/tmp/client_body \
+             /var/lib/nginx/tmp/fastcgi \
+             /var/lib/nginx/tmp/proxy \
+             /var/lib/nginx/tmp/uwsgi \
+             /var/lib/nginx/tmp/scgi \
+             /var/log/nginx \
+             /run/nginx \
+    && chown -R nobody:nobody /var/lib/nginx /var/log/nginx /run/nginx \
+    && chmod -R 770 /var/lib/nginx/tmp
 
 WORKDIR /var/www/html 
