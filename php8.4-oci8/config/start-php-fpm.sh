@@ -1,4 +1,4 @@
 #!/usr/bin/with-contenv sh
 set -e;
 
-/usr/sbin/php-fpm84 -R --nodaemonize
+/usr/local/sbin/php-fpm -R --nodaemonize

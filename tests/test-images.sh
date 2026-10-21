@@ -161,7 +161,18 @@ test_variant() {
     COMPOSER_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint composer "$IMAGE_TAG" --version 2>&1 || true)
     assert_contains "$COMPOSER_OUT" "Composer version" "Composer is installed and runnable"
 
-    # 5. Check loaded PHP extensions
+    # 5. Check required Alpine system packages
+    APK_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint apk "$IMAGE_TAG" info 2>&1 || true)
+    for pkg in xvfb fontconfig dbus; do
+        assert_contains "$APK_OUT" "$pkg" "Alpine package installed: $pkg"
+    done
+    if printf "%s" "$APK_OUT" | grep -qiE "ttf-freefont|font-freefont"; then
+        pass "Alpine package installed: ttf-freefont"
+    else
+        fail "Alpine package installed: ttf-freefont (expected 'ttf-freefont' or 'font-freefont')"
+    fi
+
+    # 6. Check loaded PHP extensions
     MODULES_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -m 2>&1 || true)
     BASE_EXTENSIONS="ctype curl dom fileinfo gd iconv intl json mbstring mysqlnd Zend OPcache openssl pdo pdo_mysql phar redis session simplexml sockets sodium tokenizer xml xmlreader xmlwriter zip zlib"
 
@@ -237,6 +248,16 @@ EXISTING_IMAGE="${2:-}"
 
 case "$TARGET" in
     all)
+        test_variant "php8.4" 18080 ""
+        test_variant "php8.4-oci8" 18081 ""
+        test_variant "php8.5" 18082 ""
+        test_variant "php8.5-oci8" 18083 ""
+        ;;
+    8.4)
+        test_variant "php8.4" 18080 ""
+        test_variant "php8.4-oci8" 18081 ""
+        ;;
+    8.5)
         test_variant "php8.5" 18080 ""
         test_variant "php8.5-oci8" 18081 ""
         ;;
