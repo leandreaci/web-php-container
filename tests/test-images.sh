@@ -157,9 +157,13 @@ test_variant() {
     PHP_VER_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -v 2>&1 || true)
     assert_contains "$PHP_VER_OUT" "PHP ${PHP_VER}" "PHP ${PHP_VER} CLI is installed"
 
-    # 4. Check Composer
+    # 4. Check Composer & Extension Helpers
     COMPOSER_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint composer "$IMAGE_TAG" --version 2>&1 || true)
     assert_contains "$COMPOSER_OUT" "Composer version" "Composer is installed and runnable"
+
+    HELPER_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint sh "$IMAGE_TAG" -c "command -v install-php-extensions && command -v docker-php-ext-enable && command -v docker-php-ext-install" 2>&1 || true)
+    assert_contains "$HELPER_OUT" "/usr/local/bin/install-php-extensions" "Helper 'install-php-extensions' is available in PATH"
+    assert_contains "$HELPER_OUT" "/usr/local/bin/docker-php-ext-enable" "Helper 'docker-php-ext-enable' is available in PATH"
 
     # 5. Check required Alpine system packages
     APK_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint apk "$IMAGE_TAG" info 2>&1 || true)
@@ -249,17 +253,13 @@ EXISTING_IMAGE="${2:-}"
 case "$TARGET" in
     all)
         test_variant "php8.4" 18080 ""
-        test_variant "php8.4-oci8" 18081 ""
         test_variant "php8.5" 18082 ""
-        test_variant "php8.5-oci8" 18083 ""
         ;;
     8.4)
         test_variant "php8.4" 18080 ""
-        test_variant "php8.4-oci8" 18081 ""
         ;;
     8.5)
         test_variant "php8.5" 18080 ""
-        test_variant "php8.5-oci8" 18081 ""
         ;;
     *)
         test_variant "$TARGET" 18080 "$EXISTING_IMAGE"
