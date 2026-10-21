@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VARIANT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ROOT_DIR="$(cd "$VARIANT_DIR/.." && pwd)"
 
-REPOSITORY=renatobalbino
+REPOSITORY=leandreaci
 IMAGE=php
 TAG=8.5-oci8
 
