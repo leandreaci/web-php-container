@@ -29,7 +29,8 @@ apk add --no-cache \
     xvfb \
     ttf-freefont \
     fontconfig \
-    dbus
+    dbus \
+    libxrender
 
 # Add official NGINX repo for latest security fixes (CVE-2026-1642, CVE-2025-53859)
 ALPINE_VERSION=$(cut -d. -f1,2 /etc/alpine-release)

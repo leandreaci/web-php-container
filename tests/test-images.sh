@@ -163,7 +163,7 @@ test_variant() {
 
     # 5. Check required Alpine system packages
     APK_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint apk "$IMAGE_TAG" info 2>&1 || true)
-    for pkg in xvfb fontconfig dbus; do
+    for pkg in xvfb fontconfig dbus libxrender; do
         assert_contains "$APK_OUT" "$pkg" "Alpine package installed: $pkg"
     done
     if printf "%s" "$APK_OUT" | grep -qiE "ttf-freefont|font-freefont"; then
