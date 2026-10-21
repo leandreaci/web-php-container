@@ -1,7 +1,6 @@
-FROM alpine:3.24.1
+FROM php:8.5-fpm-alpine
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-
-ENV PHP_VERSION=85
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 COPY /config/boostrap.sh \
     /config/oci8.sh \
@@ -10,23 +9,23 @@ COPY /config/boostrap.sh \
     /config/nginx.conf \
     /config/start-nginx.sh \
     /config/start-php-fpm.sh \
-    tmp/
-    
-WORKDIR /tmp/ 
+    /tmp/
+
+WORKDIR /tmp/
 RUN sh boostrap.sh
 
 ENTRYPOINT ["/init"]
 CMD []
 
-#Copy FPM service script3.12
-COPY /config/start-php-fpm.sh /etc/services.d/php-fpm$PHP_VERSION/run
-RUN chmod 755 /etc/services.d/php-fpm$PHP_VERSION/run
+#Copy FPM service script
+COPY /config/start-php-fpm.sh /etc/services.d/php-fpm/run
+RUN chmod 755 /etc/services.d/php-fpm/run
 
 #Copy NGINX service script
 COPY /config/start-nginx.sh /etc/services.d/nginx/run
 RUN chmod 755 /etc/services.d/nginx/run
 
-COPY /config/php.ini /etc/php$PHP_VERSION/
+COPY /config/php.ini /usr/local/etc/php/php.ini
 
 RUN mkdir -p /var/lib/nginx \
              /var/lib/nginx/tmp/client_body \
@@ -39,4 +38,5 @@ RUN mkdir -p /var/lib/nginx \
     && chown -R nobody:nobody /var/lib/nginx /var/log/nginx /run/nginx \
     && chmod -R 770 /var/lib/nginx/tmp
 
-WORKDIR /var/www/html 
+WORKDIR /var/www/html
+
