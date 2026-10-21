@@ -91,6 +91,7 @@ cd /usr/src/php
     --enable-pcntl \
     --enable-bcmath \
     --enable-exif \
+    --enable-ftp \
     --enable-intl \
     --with-zip \
     --with-curl \

@@ -174,7 +174,7 @@ test_variant() {
 
     # 6. Check loaded PHP extensions
     MODULES_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -m 2>&1 || true)
-    BASE_EXTENSIONS="ctype curl dom fileinfo gd iconv intl json mbstring mysqlnd Zend OPcache openssl pdo pdo_mysql phar redis session simplexml sockets sodium tokenizer xml xmlreader xmlwriter zip zlib"
+    BASE_EXTENSIONS="ctype curl dom fileinfo ftp gd iconv intl json mbstring mysqlnd Zend OPcache openssl pdo pdo_mysql phar redis session simplexml sockets sodium tokenizer xml xmlreader xmlwriter zip zlib"
 
     for ext in $BASE_EXTENSIONS $EXTRA_EXTENSIONS; do
         assert_contains "$MODULES_OUT" "$ext" "Extension loaded: $ext"
