@@ -120,27 +120,60 @@ test_variant() {
         fi
     fi
 
-    # 2. Check PHP CLI version
-    PHP_VER_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -v 2>&1)
+    # 2. Print detailed installed versions (OS, Nginx, PHP, Composer, APK packages, PHP extensions)
+    printf "\n  ${YELLOW}--- Installed Software & Package Versions (${VARIANT}) ---${NC}\n"
+    docker run --rm --platform=linux/amd64 --entrypoint sh "$IMAGE_TAG" -c '
+        echo "  [OS / Alpine]"
+        printf "    Alpine Linux: %s\n" "$(cat /etc/alpine-release 2>/dev/null || echo unknown)"
+        printf "    Kernel:       %s\n" "$(uname -sr)"
+        echo ""
+        echo "  [Core Services]"
+        printf "    PHP CLI:      %s\n" "$(php -v 2>/dev/null | head -n 1)"
+        printf "    PHP-FPM:      %s\n" "$(/usr/local/sbin/php-fpm -v 2>/dev/null | head -n 1 || php-fpm -v 2>/dev/null | head -n 1 || echo unknown)"
+        printf "    Nginx:        %s\n" "$(nginx -v 2>&1)"
+        printf "    Composer:     %s\n" "$(composer --version 2>/dev/null | head -n 1)"
+        printf "    OpenSSL:      %s\n" "$(openssl version 2>/dev/null || echo unknown)"
+        printf "    cURL:         %s\n" "$(curl --version 2>/dev/null | head -n 1)"
+        if [ -d "/opt/oracle/instantclient" ]; then
+            printf "    Oracle IC:    %s\n" "$(ls -d /opt/oracle/instantclient_* 2>/dev/null | head -n 1)"
+        fi
+        echo ""
+        echo "  [Installed Alpine Packages (apk info -v)]"
+        apk info -v 2>/dev/null | sort | sed "s/^/    - /"
+        echo ""
+        echo "  [Loaded PHP Extensions & Versions]"
+        php -r '\''
+            $exts = get_loaded_extensions();
+            natcasesort($exts);
+            foreach ($exts as $ext) {
+                $ver = phpversion($ext);
+                printf("    - %-20s %s\n", $ext, $ver ? $ver : "(built-in)");
+            }
+        '\''
+    ' || true
+    printf "  ${YELLOW}----------------------------------------------------------${NC}\n\n"
+
+    # 3. Check PHP CLI version
+    PHP_VER_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -v 2>&1 || true)
     assert_contains "$PHP_VER_OUT" "PHP ${PHP_VER}" "PHP ${PHP_VER} CLI is installed"
 
-    # 3. Check Composer
-    COMPOSER_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint composer "$IMAGE_TAG" --version 2>&1)
+    # 4. Check Composer
+    COMPOSER_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint composer "$IMAGE_TAG" --version 2>&1 || true)
     assert_contains "$COMPOSER_OUT" "Composer version" "Composer is installed and runnable"
 
-    # 4. Check loaded PHP extensions
-    MODULES_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -m 2>&1)
-    BASE_EXTENSIONS="ctype curl dom fileinfo gd iconv json mbstring mysqlnd Zend OPcache openssl pdo pdo_mysql phar session simplexml sockets sodium tokenizer xml xmlwriter zlib"
+    # 5. Check loaded PHP extensions
+    MODULES_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -m 2>&1 || true)
+    BASE_EXTENSIONS="ctype curl dom fileinfo gd iconv intl json mbstring mysqlnd Zend OPcache openssl pdo pdo_mysql phar redis session simplexml sockets sodium tokenizer xml xmlreader xmlwriter zip zlib"
 
     for ext in $BASE_EXTENSIONS $EXTRA_EXTENSIONS; do
         assert_contains "$MODULES_OUT" "$ext" "Extension loaded: $ext"
     done
 
     # 5. Check php.ini configuration and expose_php directive
-    INI_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" --ini 2>&1)
+    INI_OUT=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" --ini 2>&1 || true)
     assert_contains "$INI_OUT" "php.ini" "Custom php.ini is loaded"
 
-    EXPOSE_PHP=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -r "echo ini_get('expose_php');" 2>&1)
+    EXPOSE_PHP=$(docker run --rm --platform=linux/amd64 --entrypoint php "$IMAGE_TAG" -r "echo ini_get('expose_php');" 2>&1 || true)
     if [ "$EXPOSE_PHP" = "" ] || [ "$EXPOSE_PHP" = "0" ]; then
         pass "php.ini directive expose_php is Off"
     else

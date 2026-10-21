@@ -1,6 +1,7 @@
-FROM php:8.5-fpm-alpine
+FROM alpine:3.24.1
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+
+ENV PHP_VERSION=85
 
 COPY /config/boostrap.sh \
     /uploads/s6-overlay-amd64.tar.gz \
@@ -38,4 +39,3 @@ RUN mkdir -p /var/lib/nginx \
     && chmod -R 770 /var/lib/nginx/tmp
 
 WORKDIR /var/www/html
-
