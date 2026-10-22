@@ -25,7 +25,12 @@ apk add --no-cache \
     libwebp \
     icu-libs \
     libzip \
-    readline
+    readline \
+    xvfb \
+    ttf-freefont \
+    fontconfig \
+    dbus \
+    libxrender
 
 # Add official NGINX repo for latest security fixes (CVE-2026-1642, CVE-2025-53859)
 ALPINE_VERSION=$(cut -d. -f1,2 /etc/alpine-release)
@@ -82,6 +87,7 @@ cd /usr/src/php
     --enable-pcntl \
     --enable-bcmath \
     --enable-exif \
+    --enable-ftp \
     --enable-intl \
     --with-zip \
     --with-curl \
