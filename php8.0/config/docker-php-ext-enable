@@ -7,11 +7,16 @@ if [ $# -eq 0 ]; then
 fi
 
 PHP_BIN="$(command -v php || echo /usr/bin/php)"
-PHP_CONFIG_BIN="$(command -v php-config || command -v php-config82 || command -v php-config81 || command -v php-config8 || command -v php-config7 || echo /usr/bin/php-config)"
+PHP_CONFIG_BIN="$(command -v php-config || command -v php-config85 || command -v php-config84 || command -v php-config83 || command -v php-config82 || command -v php-config81 || command -v php-config8 || command -v php-config7 || echo /usr/bin/php-config)"
 
 CONF_DIR="$($PHP_BIN -r 'echo PHP_CONFIG_FILE_SCAN_DIR;' 2>/dev/null || true)"
 if [ -z "$CONF_DIR" ]; then
-    CONF_DIR="/usr/local/etc/php/conf.d"
+    PHP_VER_NUM="$($PHP_BIN -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION;' 2>/dev/null || true)"
+    if [ -d "/etc/php${PHP_VER_NUM}/conf.d" ]; then
+        CONF_DIR="/etc/php${PHP_VER_NUM}/conf.d"
+    else
+        CONF_DIR="/usr/local/etc/php/conf.d"
+    fi
 fi
 
 EXT_DIR="$($PHP_CONFIG_BIN --extension-dir 2>/dev/null || $PHP_BIN -r 'echo ini_get("extension_dir");')"

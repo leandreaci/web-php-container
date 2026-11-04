@@ -5,50 +5,120 @@ if [ $# -eq 0 ]; then
     echo "Usage: install-php-extensions <ext1> [ext2 ...]"
     echo "Examples:"
     echo "  install-php-extensions oci8"
-    echo "  install-php-extensions oci8 pdo_oci"
     echo "  install-php-extensions xdebug soap pgsql pdo_pgsql"
     echo "  install-php-extensions redis imagick swoole"
     exit 1
 fi
 
-PHP_FULL_VER="$(/usr/local/bin/php -r 'echo PHP_VERSION;')"
-CONF_DIR="/usr/local/etc/php/conf.d"
+PHP_BIN="$(command -v php85 || command -v php84 || command -v php83 || command -v php82 || command -v php81 || command -v php8 || command -v php7 || command -v php || echo /usr/bin/php)"
+if [ ! -x "$PHP_BIN" ]; then
+    echo "❌ PHP binary not found."
+    exit 1
+fi
+
+PHP_MAJOR_MINOR="$($PHP_BIN -d disable_functions="" -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')"
+CONF_DIR="$($PHP_BIN -d disable_functions="" -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')"
 mkdir -p "$CONF_DIR"
 
-# Ensure base build tools exist in virtual package .php-ext-build-deps
-apk add --no-cache --virtual .php-ext-build-deps \
-    autoconf \
-    bison \
-    build-base \
-    re2c \
-    pkgconfig \
-    linux-headers \
-    openssl-dev \
-    zlib-dev \
-    libxml2-dev \
-    curl-dev \
-    xz
+case "$PHP_MAJOR_MINOR" in
+    7.3|7.4)
+        APK_PHP_PREFIX="php7"
+        PECL_BIN="$(command -v pecl || command -v pecl7 || echo /usr/bin/pecl)"
+        PHPIZE_BIN="$(command -v phpize || command -v phpize7 || echo /usr/bin/phpize)"
+        PHP_CONFIG_BIN="$(command -v php-config || command -v php-config7 || echo /usr/bin/php-config)"
+        OCI8_PECL_SPEC="oci8-2.2.0"
+        ;;
+    8.0)
+        APK_PHP_PREFIX="php8"
+        PECL_BIN="$(command -v pecl8 || command -v pecl || echo /usr/bin/pecl8)"
+        PHPIZE_BIN="$(command -v phpize8 || command -v phpize || echo /usr/bin/phpize8)"
+        PHP_CONFIG_BIN="$(command -v php-config8 || command -v php-config || echo /usr/bin/php-config8)"
+        OCI8_PECL_SPEC="oci8-3.0.1"
+        ;;
+    8.1)
+        APK_PHP_PREFIX="php81"
+        PECL_BIN="$(command -v pecl81 || command -v pecl || echo /usr/bin/pecl81)"
+        PHPIZE_BIN="$(command -v phpize81 || command -v phpize || echo /usr/bin/phpize81)"
+        PHP_CONFIG_BIN="$(command -v php-config81 || command -v php-config || echo /usr/bin/php-config81)"
+        OCI8_PECL_SPEC="oci8-3.2.1"
+        ;;
+    8.2)
+        APK_PHP_PREFIX="php82"
+        PECL_BIN="$(command -v pecl82 || command -v pecl || echo /usr/bin/pecl82)"
+        PHPIZE_BIN="$(command -v phpize82 || command -v phpize || echo /usr/bin/phpize82)"
+        PHP_CONFIG_BIN="$(command -v php-config82 || command -v php-config || echo /usr/bin/php-config82)"
+        OCI8_PECL_SPEC="oci8-3.2.1"
+        ;;
+    8.3)
+        APK_PHP_PREFIX="php83"
+        PECL_BIN="$(command -v pecl83 || command -v pecl || echo /usr/bin/pecl83)"
+        PHPIZE_BIN="$(command -v phpize83 || command -v phpize || echo /usr/bin/phpize83)"
+        PHP_CONFIG_BIN="$(command -v php-config83 || command -v php-config || echo /usr/bin/php-config83)"
+        OCI8_PECL_SPEC="oci8-3.4.0"
+        ;;
+    8.4)
+        APK_PHP_PREFIX="php84"
+        PECL_BIN="$(command -v pecl84 || command -v pecl || echo /usr/bin/pecl84)"
+        PHPIZE_BIN="$(command -v phpize84 || command -v phpize || echo /usr/bin/phpize84)"
+        PHP_CONFIG_BIN="$(command -v php-config84 || command -v php-config || echo /usr/bin/php-config84)"
+        OCI8_PECL_SPEC="oci8"
+        ;;
+    8.5)
+        APK_PHP_PREFIX="php85"
+        PECL_BIN="$(command -v pecl85 || command -v pecl || echo /usr/bin/pecl85)"
+        PHPIZE_BIN="$(command -v phpize85 || command -v phpize || echo /usr/bin/phpize85)"
+        PHP_CONFIG_BIN="$(command -v php-config85 || command -v php-config || echo /usr/bin/php-config85)"
+        OCI8_PECL_SPEC="oci8"
+        ;;
+    *)
+        APK_PHP_PREFIX="php"
+        PECL_BIN="$(command -v pecl || echo /usr/bin/pecl)"
+        PHPIZE_BIN="$(command -v phpize || echo /usr/bin/phpize)"
+        PHP_CONFIG_BIN="$(command -v php-config || echo /usr/bin/php-config)"
+        OCI8_PECL_SPEC="oci8"
+        ;;
+esac
 
-export PHP_AUTOCONF=/usr/bin/autoconf
-export PHP_AUTOHEADER=/usr/bin/autoheader
-
-NEED_PHP_SRC=0
-SRC_DIR="/usr/src/php"
-
-ensure_php_source() {
-    if [ ! -d "$SRC_DIR/ext" ]; then
-        echo "==> Downloading official PHP ${PHP_FULL_VER} source for core extension compilation..."
-        mkdir -p "$SRC_DIR"
-        curl -fsSL "https://www.php.net/distributions/php-${PHP_FULL_VER}.tar.xz" -o /tmp/php-src.tar.xz
-        tar -xJf /tmp/php-src.tar.xz -C "$SRC_DIR" --strip-components=1
-        rm -f /tmp/php-src.tar.xz
+safe_symlink() {
+    src="$1"
+    dst="$2"
+    if [ -n "$src" ] && [ -e "$src" ] && [ "$src" != "$dst" ]; then
+        if [ ! -L "$dst" ] || [ "$(readlink -f "$dst" 2>/dev/null)" != "$(readlink -f "$src" 2>/dev/null)" ]; then
+            ln -sf "$src" "$dst" 2>/dev/null || true
+        fi
     fi
+}
+
+# Create compatibility symlinks in both /usr/bin and /usr/local/bin
+safe_symlink "$PHP_BIN" /usr/local/bin/php
+safe_symlink "$PHP_BIN" /usr/bin/php
+safe_symlink "$PHPIZE_BIN" /usr/local/bin/phpize
+safe_symlink "$PHPIZE_BIN" /usr/bin/phpize
+safe_symlink "$PHP_CONFIG_BIN" /usr/local/bin/php-config
+safe_symlink "$PHP_CONFIG_BIN" /usr/bin/php-config
+safe_symlink "$PECL_BIN" /usr/local/bin/pecl
+safe_symlink "$PECL_BIN" /usr/bin/pecl
+
+apk update
+
+ensure_build_deps() {
+    apk add --no-cache --virtual .php-ext-build-deps \
+        autoconf \
+        build-base \
+        pkgconfig \
+        linux-headers \
+        "${APK_PHP_PREFIX}-dev" \
+        "${APK_PHP_PREFIX}-pear" \
+        openssl-dev \
+        zlib-dev \
+        pcre-dev \
+        curl-dev
 }
 
 ensure_oracle_instantclient() {
     if [ ! -d "/opt/oracle/instantclient" ]; then
-        echo "==> Installing Oracle Instant Client 21.17..."
-        apk add --no-cache libaio libnsl wget unzip
+        echo "==> Installing Oracle Instant Client..."
+        apk add --no-cache libaio libnsl libc6-compat gcompat wget unzip
         mkdir -p /opt/oracle
         cd /tmp
         wget -q https://download.oracle.com/otn_software/linux/instantclient/2117000/instantclient-basic-linux.x64-21.17.0.0.0dbru.zip
@@ -56,35 +126,18 @@ ensure_oracle_instantclient() {
         unzip -oq ./instantclient-basic-linux.x64-21.17.0.0.0dbru.zip -d /opt/oracle
         unzip -oq ./instantclient-sdk-linux.x64-21.17.0.0.0dbru.zip -d /opt/oracle
         rm -f instantclient-basic-linux.x64-21.17.0.0.0dbru.zip instantclient-sdk-linux.x64-21.17.0.0.0dbru.zip
-        ln -sf /opt/oracle/instantclient_21_17/sqlplus /usr/bin/sqlplus
-        ln -sf /opt/oracle/instantclient_21_17 /opt/oracle/instantclient
-        ln -sf /usr/lib/libnsl.so.2 /usr/lib/libnsl.so.1 || true
-        ln -sf /lib/libc.musl-x86_64.so.1 /usr/lib/libresolv.so.2
-        ln -sf /lib/ld-musl-x86_64.so.1 /usr/lib/ld-linux-x86-64.so.2
+        safe_symlink /opt/oracle/instantclient_21_17/sqlplus /usr/bin/sqlplus
+        safe_symlink /opt/oracle/instantclient_21_17 /opt/oracle/instantclient
+        safe_symlink /usr/lib/libnsl.so.2 /usr/lib/libnsl.so.1
+        safe_symlink /lib/libc.musl-x86_64.so.1 /usr/lib/libresolv.so.2
+        safe_symlink /lib/ld-musl-x86_64.so.1 /usr/lib/ld-linux-x86-64.so.2
     fi
     export LD_LIBRARY_PATH="/opt/oracle/instantclient:${LD_LIBRARY_PATH}"
 }
 
-build_core_ext() {
-    EXT_NAME="$1"
-    shift
-    ensure_php_source
-    if [ ! -d "$SRC_DIR/ext/$EXT_NAME" ]; then
-        echo "❌ Core extension directory $SRC_DIR/ext/$EXT_NAME not found."
-        return 1
-    fi
-    echo "==> Compiling PHP core extension: $EXT_NAME..."
-    cd "$SRC_DIR/ext/$EXT_NAME"
-    /usr/local/bin/phpize
-    ./configure --with-php-config=/usr/local/bin/php-config "$@"
-    make -j"$(nproc)"
-    make install
-    make clean
-    docker-php-ext-enable "$EXT_NAME"
-}
-
 run_pecl() {
-    /usr/local/bin/php -C -n -q -d include_path=/usr/local/lib/php -d date.timezone=UTC -d output_buffering=1 -d variables_order=EGPCS -d safe_mode=0 -d register_argc_argv="On" -d memory_limit="-1" -d disable_functions="" /usr/local/lib/php/peclcmd.php "$@"
+    # Ensure PEAR/PECL executes PHP with disabled functions cleared (exec, popen, proc_open are needed during build)
+    PHP_PEAR_PHP_BIN="$PHP_BIN -d disable_functions=\"\" -d memory_limit=\"-1\"" "$PECL_BIN" "$@"
 }
 
 PECL_UPDATED=0
@@ -96,133 +149,40 @@ ensure_pecl_updated() {
 }
 
 for EXT in "$@"; do
-    # Strip optional version constraint for matching, keep full spec for pecl
     EXT_BASE="${EXT%%-*}"
     EXT_LOWER="$(printf "%s" "$EXT_BASE" | tr '[:upper:]' '[:lower:]')"
 
-    # Skip if already loaded
-    if /usr/local/bin/php -m | grep -qi "^${EXT_LOWER}$"; then
+    if "$PHP_BIN" -m | grep -qi "^${EXT_LOWER}$"; then
         echo "==> Extension '${EXT_LOWER}' is already installed and enabled."
         continue
     fi
 
     case "$EXT_LOWER" in
         oci8)
+            ensure_build_deps
             ensure_oracle_instantclient
             ensure_pecl_updated
-            echo "==> Installing oci8 via PECL..."
-            printf "instantclient,/opt/oracle/instantclient\n" | run_pecl install oci8
+            echo "==> Installing ${OCI8_PECL_SPEC} via PECL..."
+            printf "instantclient,/opt/oracle/instantclient\n" | run_pecl install "$OCI8_PECL_SPEC"
             docker-php-ext-enable oci8
             ;;
-        pdo_oci)
-            ensure_oracle_instantclient
-            build_core_ext pdo_oci --with-pdo-oci=instantclient,/opt/oracle/instantclient,21.1
-            ;;
-        soap)
-            apk add --no-cache libxml2
-            build_core_ext soap
-            ;;
-        xsl)
-            apk add --no-cache libxslt
-            apk add --no-cache --virtual .ext-deps-xsl libxslt-dev
-            build_core_ext xsl
-            apk del .ext-deps-xsl
-            ;;
-        pgsql)
-            apk add --no-cache libpq
-            apk add --no-cache --virtual .ext-deps-pgsql postgresql-dev
-            build_core_ext pgsql
-            apk del .ext-deps-pgsql
-            ;;
-        pdo_pgsql)
-            apk add --no-cache libpq
-            apk add --no-cache --virtual .ext-deps-pdo-pgsql postgresql-dev
-            build_core_ext pdo_pgsql
-            apk del .ext-deps-pdo-pgsql
-            ;;
-        ldap)
-            apk add --no-cache libldap
-            apk add --no-cache --virtual .ext-deps-ldap openldap-dev
-            build_core_ext ldap
-            apk del .ext-deps-ldap
-            ;;
-        gmp)
-            apk add --no-cache gmp
-            apk add --no-cache --virtual .ext-deps-gmp gmp-dev
-            build_core_ext gmp
-            apk del .ext-deps-gmp
-            ;;
-        gettext)
-            apk add --no-cache libintl
-            apk add --no-cache --virtual .ext-deps-gettext gettext-dev
-            build_core_ext gettext
-            apk del .ext-deps-gettext
-            ;;
-        bz2)
-            apk add --no-cache libbz2
-            apk add --no-cache --virtual .ext-deps-bz2 bzip2-dev
-            build_core_ext bz2
-            apk del .ext-deps-bz2
-            ;;
-        intl)
-            apk add --no-cache icu-libs
-            apk add --no-cache --virtual .ext-deps-intl icu-dev
-            build_core_ext intl
-            apk del .ext-deps-intl
-            ;;
-        zip)
-            apk add --no-cache libzip
-            apk add --no-cache --virtual .ext-deps-zip libzip-dev
-            build_core_ext zip
-            apk del .ext-deps-zip
-            ;;
-        calendar|shmop|sysvmsg|sysvsem|sysvshm|pcntl|posix|sockets|bcmath|exif)
-            build_core_ext "$EXT_LOWER"
-            ;;
-        imagick)
-            apk add --no-cache imagemagick imagemagick-libs
-            apk add --no-cache --virtual .ext-deps-imagick imagemagick-dev
-            ensure_pecl_updated
-            printf "\n" | run_pecl install "$EXT"
-            docker-php-ext-enable imagick
-            apk del .ext-deps-imagick
-            ;;
-        swoole)
-            apk add --no-cache brotli-libs libstdc++
-            apk add --no-cache --virtual .ext-deps-swoole brotli-dev
-            ensure_pecl_updated
-            printf "\n\n\n\n\nno\n\n\n\n\n\n\n\n\n\n\n\n\n" | run_pecl install "$EXT"
-            docker-php-ext-enable swoole
-            apk del .ext-deps-swoole
-            ;;
-        amqp)
-            apk add --no-cache rabbitmq-c
-            apk add --no-cache --virtual .ext-deps-amqp rabbitmq-c-dev
-            ensure_pecl_updated
-            printf "\n" | run_pecl install "$EXT"
-            docker-php-ext-enable amqp
-            apk del .ext-deps-amqp
-            ;;
-        xdebug)
-            ensure_pecl_updated
-            printf "\n" | run_pecl install "$EXT"
-            docker-php-ext-enable xdebug
-            ;;
         *)
-            # Try PECL first, fallback to PHP core source if it exists
-            ensure_pecl_updated
-            if printf "\n" | run_pecl install "$EXT"; then
-                docker-php-ext-enable "$EXT_LOWER"
+            # Try official Alpine package first (e.g. php81-redis, php7-soap, php82-xdebug)
+            if apk add --no-cache "${APK_PHP_PREFIX}-${EXT_LOWER}" 2>/dev/null || apk add --no-cache "${APK_PHP_PREFIX}-pecl-${EXT_LOWER}" 2>/dev/null; then
+                echo "==> Installed ${EXT_LOWER} via Alpine package."
             else
-                echo "==> PECL install failed for '$EXT', trying PHP core source..."
-                build_core_ext "$EXT_LOWER"
+                echo "==> Installing ${EXT} via PECL..."
+                ensure_build_deps
+                ensure_pecl_updated
+                printf "\n" | run_pecl install "$EXT"
+                docker-php-ext-enable "$EXT_LOWER"
             fi
             ;;
     esac
 done
 
-# Cleanup source, build dependencies, and remove apk package manager for container hardening (unless KEEP_APK=1)
-rm -rf "$SRC_DIR" /tmp/pear /tmp/*
+# Cleanup temporary files, build deps, and purge apk for container hardening
+rm -rf /tmp/pear /tmp/*
 apk del .php-ext-build-deps 2>/dev/null || true
 if [ "${KEEP_APK:-0}" != "1" ]; then
     apk del --purge apk-tools 2>/dev/null || true
