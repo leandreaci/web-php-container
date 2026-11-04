@@ -1,1 +1,0 @@
-docker run -it --network bra-prod-network -p 80:80 web-php-7.3oci8 /bin/sh

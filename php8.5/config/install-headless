@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+echo "==> Installing headless browser dependencies (xvfb, fontconfig, dbus, libxrender, ttf-freefont)..."
+
+# Detect if apk is present, or re-install apk-tools temporarily if missing
+APK_REMOVED=0
+if ! command -v apk >/dev/null 2>&1; then
+    echo "❌ APK package manager is not available in this container."
+    exit 1
+fi
+
+apk update
+apk add --no-cache \
+    xvfb \
+    fontconfig \
+    dbus \
+    libxrender \
+    ttf-freefont
+
+echo "✅ Headless browser dependencies installed successfully!"

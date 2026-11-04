@@ -34,13 +34,8 @@ apk add php$PHP_VERSION-phar
 
 ln -s /usr/bin/php81 /usr/bin/php
 
-#install composer 2.0
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-php composer-setup.php
-php -r "unlink('composer-setup.php');"
-
-mv composer.phar /usr/local/bin/composer
+# Ensure composer permissions
+chmod +x /usr/local/bin/composer || true
 
 #Nginx
 mkdir -p /var/www/html/
@@ -50,5 +45,14 @@ mv /tmp/www.conf /etc/php81/php-fpm.d/www.conf
 mkdir -p /var/www/html/public/
 
 echo "<?php phpinfo(); ?>" > /var/www/html/public/index.php
+
+# Create s6-overlay cont-init.d hook to remove apk at container startup (leaving apk available for child Dockerfiles during build)
+mkdir -p /etc/cont-init.d
+cat << 'EOF' > /etc/cont-init.d/00-remove-apk.sh
+#!/usr/bin/with-contenv sh
+apk del --purge apk-tools 2>/dev/null || true
+rm -rf /sbin/apk /usr/sbin/apk /etc/apk /lib/apk /usr/share/apk /var/cache/apk
+EOF
+chmod 755 /etc/cont-init.d/00-remove-apk.sh
 
 rm -r /tmp/*

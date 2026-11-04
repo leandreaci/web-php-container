@@ -1,0 +1,143 @@
+#!/bin/sh
+set -e
+
+echo "==> Installing and configuring Laravel Octane (Swoole + Nginx Reverse Proxy + s6-overlay service)..."
+
+# 1. Install and enable required extensions (swoole, pcntl, posix)
+/usr/local/bin/install-php-extensions pcntl posix swoole
+
+# 2. Configure s6-overlay service for Laravel Octane
+mkdir -p /etc/services.d/octane
+cat << 'EOF' > /etc/services.d/octane/run
+#!/usr/bin/with-contenv sh
+set -e;
+
+if [ -f "/var/www/html/artisan" ]; then
+    echo "Starting Laravel Octane..."
+    exec php -d memory_limit=512M /var/www/html/artisan octane:start --server=swoole --host=0.0.0.0 --port=8000 --workers=auto --task-workers=auto --max-requests=10000
+else
+    echo "Artisan file not found in /var/www/html, skipping Octane start."
+    exec sleep 3600
+fi
+EOF
+chmod 755 /etc/services.d/octane/run
+
+# 3. Update Nginx configuration to reverse-proxy requests to Octane Swoole (127.0.0.1:8000)
+cat << 'EOF' > /etc/nginx/nginx.conf
+user nobody;
+pcre_jit on;
+worker_processes auto;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 4096;
+    multi_accept on;
+}
+
+error_log /dev/stdout info;
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    keepalive_requests 10000;
+    types_hash_max_size 2048;
+    server_tokens off;
+
+    # Dynamic Buffers for Large Payloads & Large JSON responses
+    client_max_body_size 64m;
+    client_body_buffer_size 1m;
+    proxy_buffers 16 64k;
+    proxy_buffer_size 128k;
+    proxy_busy_buffers_size 256k;
+    proxy_read_timeout 120s;
+    proxy_send_timeout 120s;
+
+    # Gzip Compression Optimization for JSON & Text
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 5;
+    gzip_min_length 256;
+    gzip_types application/json application/javascript text/css text/plain text/xml application/xml;
+
+    error_log /dev/stdout;
+
+    server {
+        add_header X-Frame-Options "SAMEORIGIN";
+        add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+        add_header X-Content-Type-Options nosniff;
+        add_header X-XSS-Protection "1; mode=block";
+        ssl_protocols TLSv1.2 TLSv1.3;
+        add_header X-Permitted-Cross-Domain-Policies master-only;
+        add_header Referrer-Policy same-origin;
+        ssl_ciphers "EECDH+ECDSA+AESGCM EECDH+aRSA+AESGCM EECDH+ECDSA+SHA384 EECDH+ECDSA+SHA256 EECDH+aRSA+SHA384 EECDH+aRSA+SHA256 EECDH+aRSA+RC4 EECDH EDH+aRSA HIGH !RC4 !aNULL !eNULL !LOW !3DES !MD5 !EXP !PSK !SRP !DSS";
+
+        listen 80;
+
+        server_name _;
+
+        root /var/www/html/public;
+        
+        index index.php;
+        charset utf-8;
+
+        location = /index.php {
+            try_files /not_exists @octane;
+        }
+
+        location / {
+            proxy_hide_header X-Powered-By;
+            proxy_http_version 1.1;
+            proxy_set_header Host $http_host;
+            proxy_set_header Scheme $scheme;
+            proxy_set_header SERVER_PORT $server_port;
+            proxy_set_header REMOTE_ADDR $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+
+            # Try serving static file directly, fallback to Octane
+            try_files $uri $uri/ @octane;
+        }
+
+        location @octane {
+            set $suffix "";
+            if ($uri = /index.php) {
+                set $suffix ?$query_string;
+            }
+
+            proxy_hide_header X-Powered-By;
+            proxy_pass http://127.0.0.1:8000$suffix;
+            proxy_http_version 1.1;
+            proxy_set_header Host $http_host;
+            proxy_set_header Scheme $scheme;
+            proxy_set_header SERVER_PORT $server_port;
+            proxy_set_header REMOTE_ADDR $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+        }
+
+        location ~ ^/(status|ping)$ {
+            access_log off;
+            allow 192.168.0.0/16;
+            allow 127.0.0.1;
+            deny all;
+            include /etc/nginx/fastcgi_params;
+            fastcgi_param  QUERY_STRING openmetrics&full;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_pass 127.0.0.1:9000;
+        }
+
+        location ~ /\.(?!well-known).* {
+            deny all;
+        }
+    }
+}
+EOF
+
+echo "✅ Laravel Octane (Swoole + Nginx + s6-overlay) installed and configured successfully!"
