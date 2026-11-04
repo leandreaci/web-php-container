@@ -1,5 +1,5 @@
 # Stage 1: Runtime base image
-FROM alpine:3.14 AS base
+FROM alpine:3.16 AS base
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 

@@ -11,7 +11,7 @@
 ![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-3.24.1-0D597F?logo=alpinelinux)
 ![Hardened](https://img.shields.io/badge/security-apk%20purged%20at%20runtime-blue?logo=linux)
 
-Production-ready, hardened, and optimized Docker images for PHP applications (Laravel / Lumen / Octane / generic PHP), based on **Alpine Linux** with **PHP compiled from official source code (`php.net`)** on `8.4`/`8.5`, **Nginx Mainline**, **Composer 2**, on-demand extension & Octane installation helpers (`install-php-extensions`, `octane-install`), and process management via **s6-overlay**.
+Production-ready, hardened, and optimized Docker images for PHP applications (Laravel / Lumen / Octane / generic PHP), based on **Alpine Linux** with **native Alpine PHP packages (`apk`)** across all versions, **Nginx Mainline**, **Composer 2**, multi-stage build patterns, on-demand extension & Octane installation helpers (`install-php-extensions`, `octane-install`, `install-headless`), and process management via **s6-overlay**.
 
 ---
 
