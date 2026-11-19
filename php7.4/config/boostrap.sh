@@ -8,7 +8,7 @@ gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 apk upgrade --update-cache --available
 cat /etc/alpine-release
 apk add curl
-apk add nginx
+sh /tmp/install-nginx
 apk add php$PHP_VERSION 
 apk add php$PHP_VERSION-fpm
 apk add php$PHP_VERSION-opcache 

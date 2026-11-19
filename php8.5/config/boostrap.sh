@@ -5,11 +5,11 @@ PHP_VERSION=85
 
 gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 
-# Essentials & PHP packages (in alpine edge, opcache is built into core php85)
+# Essentials & PHP packages (opcache is built into core php85)
 apk upgrade --update-cache --available
+sh /tmp/install-nginx
 apk add --no-cache \
     curl \
-    nginx \
     php$PHP_VERSION \
     php$PHP_VERSION-common \
     php$PHP_VERSION-bcmath \
