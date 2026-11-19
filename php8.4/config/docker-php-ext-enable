@@ -6,8 +6,20 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-CONF_DIR="/usr/local/etc/php/conf.d"
-EXT_DIR="$(/usr/local/bin/php-config --extension-dir)"
+PHP_BIN="$(command -v php || echo /usr/bin/php)"
+PHP_CONFIG_BIN="$(command -v php-config || command -v php-config85 || command -v php-config84 || command -v php-config83 || command -v php-config82 || command -v php-config81 || command -v php-config8 || command -v php-config7 || echo /usr/bin/php-config)"
+
+CONF_DIR="$($PHP_BIN -r 'echo PHP_CONFIG_FILE_SCAN_DIR;' 2>/dev/null || true)"
+if [ -z "$CONF_DIR" ]; then
+    PHP_VER_NUM="$($PHP_BIN -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION;' 2>/dev/null || true)"
+    if [ -d "/etc/php${PHP_VER_NUM}/conf.d" ]; then
+        CONF_DIR="/etc/php${PHP_VER_NUM}/conf.d"
+    else
+        CONF_DIR="/usr/local/etc/php/conf.d"
+    fi
+fi
+
+EXT_DIR="$($PHP_CONFIG_BIN --extension-dir 2>/dev/null || $PHP_BIN -r 'echo ini_get("extension_dir");')"
 mkdir -p "$CONF_DIR"
 
 for EXT in "$@"; do
@@ -20,7 +32,6 @@ for EXT in "$@"; do
         exit 1
     fi
 
-    # Detect if Zend extension (e.g. xdebug, opcache)
     if readelf -Ws "$SO_FILE" 2>/dev/null | grep -q "zend_extension_entry" || [ "$EXT_CLEAN" = "xdebug" ] || [ "$EXT_CLEAN" = "opcache" ]; then
         echo "zend_extension=${EXT_CLEAN}.so" > "$INI_FILE"
     else

@@ -1,0 +1,64 @@
+#!/bin/sh
+# Compila o nginx a partir do código-fonte oficial (nginx.org).
+# O Alpine só distribui o nginx stable (1.26/1.28/1.30), então para garantir
+# a versão corrigida (>= 1.31.9) compilamos o mainline sobre a base de cada imagem.
+set -e
+
+NGINX_VERSION="1.31.9"
+NGINX_SHA256="a11c5eeee2e257f4478f0e649f84b0040787d277d2d3e5233952aa6b6dcb80ad"
+
+# pcre2 em Alpines recentes, pcre nas antigas
+if apk add --no-cache --simulate pcre2-dev >/dev/null 2>&1; then
+    PCRE_DEV=pcre2-dev; PCRE_RUN=pcre2
+else
+    PCRE_DEV=pcre-dev; PCRE_RUN=pcre
+fi
+
+apk add --no-cache --virtual .nginx-build-deps \
+    build-base linux-headers openssl-dev zlib-dev "$PCRE_DEV" curl
+apk add --no-cache "$PCRE_RUN" openssl zlib
+
+addgroup -S nginx 2>/dev/null || true
+adduser -S -D -H -h /var/lib/nginx -s /sbin/nologin -G nginx -g nginx nginx 2>/dev/null || true
+
+BUILD_DIR=$(mktemp -d)
+cd "$BUILD_DIR"
+curl -fsSL "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -o nginx.tar.gz
+echo "${NGINX_SHA256}  nginx.tar.gz" | sha256sum -c -
+tar -xzf nginx.tar.gz
+cd "nginx-${NGINX_VERSION}"
+
+./configure \
+    --prefix=/var/lib/nginx \
+    --sbin-path=/usr/sbin/nginx \
+    --conf-path=/etc/nginx/nginx.conf \
+    --error-log-path=/var/log/nginx/error.log \
+    --http-log-path=/var/log/nginx/access.log \
+    --pid-path=/run/nginx/nginx.pid \
+    --lock-path=/run/nginx/nginx.lock \
+    --http-client-body-temp-path=/var/lib/nginx/tmp/client_body \
+    --http-proxy-temp-path=/var/lib/nginx/tmp/proxy \
+    --http-fastcgi-temp-path=/var/lib/nginx/tmp/fastcgi \
+    --http-uwsgi-temp-path=/var/lib/nginx/tmp/uwsgi \
+    --http-scgi-temp-path=/var/lib/nginx/tmp/scgi \
+    --user=nginx --group=nginx \
+    --with-pcre-jit \
+    --with-threads \
+    --with-file-aio \
+    --with-http_ssl_module \
+    --with-http_v2_module \
+    --with-http_realip_module \
+    --with-http_gzip_static_module \
+    --with-http_stub_status_module \
+    --with-http_auth_request_module
+make -j"$(nproc)"
+make install
+
+mkdir -p /var/lib/nginx/tmp /var/lib/nginx/logs /var/log/nginx /run/nginx
+chown -R nginx:nginx /var/lib/nginx /run/nginx /var/log/nginx
+
+cd /
+rm -rf "$BUILD_DIR"
+apk del --no-cache .nginx-build-deps
+
+/usr/sbin/nginx -v

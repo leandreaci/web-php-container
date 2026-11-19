@@ -1,0 +1,28 @@
+name: PHP 8.2
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'php8.2/**'
+      - 'tests/**'
+      - 'build.sh'
+      - '.github/workflows/php8.2.yml'
+      - '.github/workflows/_build-version.yml'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - 'php8.2/**'
+      - 'tests/**'
+      - 'build.sh'
+      - '.github/workflows/php8.2.yml'
+      - '.github/workflows/_build-version.yml'
+  workflow_dispatch:
+
+jobs:
+  php82:
+    uses: ./.github/workflows/_build-version.yml
+    with:
+      version: "8.2"
+      event_type: ${{ github.event_name }}
+    secrets: inherit

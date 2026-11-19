@@ -1,0 +1,28 @@
+name: PHP 7.3
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'php7.3/**'
+      - 'tests/**'
+      - 'build.sh'
+      - '.github/workflows/php7.3.yml'
+      - '.github/workflows/_build-version.yml'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - 'php7.3/**'
+      - 'tests/**'
+      - 'build.sh'
+      - '.github/workflows/php7.3.yml'
+      - '.github/workflows/_build-version.yml'
+  workflow_dispatch:
+
+jobs:
+  php73:
+    uses: ./.github/workflows/_build-version.yml
+    with:
+      version: "7.3"
+      event_type: ${{ github.event_name }}
+    secrets: inherit
