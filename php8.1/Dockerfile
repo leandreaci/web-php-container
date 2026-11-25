@@ -13,6 +13,7 @@ COPY /config/boostrap.sh \
     /uploads/s6-overlay-amd64.tar.gz \
     /config/www.conf \
     /config/nginx.conf \
+    /config/install-nginx \
     /config/start-nginx.sh \
     /config/start-php-fpm.sh \
     tmp/

@@ -1,5 +1,5 @@
 # Stage 1: Runtime base image
-FROM alpine:edge AS base
+FROM alpine:3.23 AS base
 
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
@@ -15,6 +15,7 @@ COPY /config/boostrap.sh \
     /uploads/s6-overlay-amd64.tar.gz \
     /config/www.conf \
     /config/nginx.conf \
+    /config/install-nginx \
     /config/start-nginx.sh \
     /config/start-php-fpm.sh \
     /tmp/

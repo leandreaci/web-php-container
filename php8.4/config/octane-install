@@ -24,7 +24,7 @@ chmod 755 /etc/services.d/octane/run
 
 # 3. Update Nginx configuration to reverse-proxy requests to Octane Swoole (127.0.0.1:8000)
 cat << 'EOF' > /etc/nginx/nginx.conf
-user nobody;
+user nginx;
 pcre_jit on;
 worker_processes auto;
 pid /var/run/nginx.pid;
@@ -50,6 +50,9 @@ http {
     # Dynamic Buffers for Large Payloads & Large JSON responses
     client_max_body_size 64m;
     client_body_buffer_size 1m;
+    client_body_temp_path /var/lib/nginx/tmp/client_body;
+    proxy_temp_path /var/lib/nginx/tmp/proxy;
+    fastcgi_temp_path /var/lib/nginx/tmp/fastcgi;
     proxy_buffers 16 64k;
     proxy_buffer_size 128k;
     proxy_busy_buffers_size 256k;

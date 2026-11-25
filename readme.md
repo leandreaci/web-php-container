@@ -8,7 +8,7 @@
 [![PHP 8.0](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.0.yml/badge.svg)](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.0.yml)
 [![PHP 7.4](https://github.com/renatobalbino/web-php-container/actions/workflows/php7.4.yml/badge.svg)](https://github.com/renatobalbino/web-php-container/actions/workflows/php7.4.yml)
 [![PHP 7.3](https://github.com/renatobalbino/web-php-container/actions/workflows/php7.3.yml/badge.svg)](https://github.com/renatobalbino/web-php-container/actions/workflows/php7.3.yml)
-![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-3.21%20%7C%20edge-0D597F?logo=alpinelinux)
+![Alpine Linux](https://img.shields.io/badge/Alpine_Linux-3.12%20to%203.23-0D597F?logo=alpinelinux)
 ![Hardened](https://img.shields.io/badge/security-apk%20purged%20at%20runtime-blue?logo=linux)
 
 Production-ready, hardened, and optimized Docker images for PHP applications (Laravel / Lumen / Octane / generic PHP), based on **Alpine Linux** with **native Alpine PHP packages (`apk`)** across all versions, **Nginx Mainline**, **Composer 2**, multi-stage build patterns, on-demand extension & Octane installation helpers (`install-php-extensions`, `octane-install`, `install-headless`), and process management via **s6-overlay**.
@@ -23,7 +23,7 @@ Production-ready, hardened, and optimized Docker images for PHP applications (La
 
 | Variant | Directory | Alpine Base | Image Tags | GitHub Build Status | Test Suite | Description |
 | :--- | :--- | :--- | :--- | :---: | :---: | :--- |
-| **PHP 8.5** | `php8.5/` | `alpine:edge` | `renatobalbino/php:8.5`<br>`renatobalbino/php:8.5-headless` | [![PHP 8.5](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.5.yml/badge.svg)](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.5.yml) | ![Tests](https://img.shields.io/badge/tests-51%20passed-brightgreen) | PHP 8.5.12 + Nginx + Redis + `install-headless` + `octane-install` (~236 MB base / ~592 MB headless) |
+| **PHP 8.5** | `php8.5/` | `alpine:3.23` | `renatobalbino/php:8.5`<br>`renatobalbino/php:8.5-headless` | [![PHP 8.5](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.5.yml/badge.svg)](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.5.yml) | ![Tests](https://img.shields.io/badge/tests-51%20passed-brightgreen) | PHP 8.5.12 + Nginx + Redis + `install-headless` + `octane-install` (~236 MB base / ~592 MB headless) |
 | **PHP 8.4** | `php8.4/` | `alpine:3.21` | `renatobalbino/php:8.4`<br>`renatobalbino/php:8.4-headless` | [![PHP 8.4](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.4.yml/badge.svg)](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.4.yml) | ![Tests](https://img.shields.io/badge/tests-51%20passed-brightgreen) | PHP 8.4.27 + Nginx + Redis + `install-headless` + `octane-install` (~192 MB base / ~600 MB headless) |
 | **PHP 8.3** | `php8.3/` | `alpine:3.21` | `renatobalbino/php:8.3`<br>`renatobalbino/php:8.3-headless` | [![PHP 8.3](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.3.yml/badge.svg)](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.3.yml) | ![Tests](https://img.shields.io/badge/tests-48%20passed-brightgreen) | PHP 8.3.36 + Nginx + Redis + `install-headless` + `octane-install` (~187 MB base / ~596 MB headless) |
 | **PHP 8.2** | `php8.2/` | `alpine:3.21` | `renatobalbino/php:8.2`<br>`renatobalbino/php:8.2-headless` | [![PHP 8.2](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.2.yml/badge.svg)](https://github.com/renatobalbino/web-php-container/actions/workflows/php8.2.yml) | ![Tests](https://img.shields.io/badge/tests-32%20passed-brightgreen) | PHP 8.2.35 + Nginx + Redis + `install-headless` + Composer 2 (~157 MB base / ~567 MB headless) |
@@ -44,7 +44,7 @@ Production-ready, hardened, and optimized Docker images for PHP applications (La
 - **Default PHP extensions installed via native `apk`:**
   `bcmath`, `ctype`, `curl`, `dom`, `fileinfo`, `ftp`, `gd`, `iconv`, `intl`, `json`, `mbstring`, `mysqlnd`, `openssl`, `pcntl`, `pdo`, `pdo_mysql`, `pear`, `phar`, `posix`, `redis` (`php-pecl-redis`), `session`, `simplexml`, `sockets`, `sodium`, `tokenizer`, `xml`, `xmlreader`, `xmlwriter`, `Zend OPcache`, `zip`, `zlib`.
 - **System packages (Alpine Linux):**
-  `nginx` (mainline), `curl`, `ca-certificates`, `s6-overlay`.
+  `nginx` 1.31.9 (mainline, compiled from nginx.org source via `install-nginx`), `curl`, `ca-certificates`, `s6-overlay`.
   - On `-headless` tags: `xvfb`, `fontconfig`, `dbus`, `libxrender`, `font-freefont` / `ttf-freefont`.
 
 ---

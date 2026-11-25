@@ -6,7 +6,7 @@ gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C /
 #Essentials
 apk upgrade --update-cache --available
 apk add curl
-apk add nginx
+sh /tmp/install-nginx
 apk add php$PHP_VERSION 
 apk add php$PHP_VERSION-common
 apk add php$PHP_VERSION-fpm
