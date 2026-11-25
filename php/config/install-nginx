@@ -54,8 +54,12 @@ cd "nginx-${NGINX_VERSION}"
 make -j"$(nproc)"
 make install
 
-mkdir -p /var/lib/nginx/tmp /var/lib/nginx/logs /var/log/nginx /run/nginx
+mkdir -p /var/lib/nginx/tmp/client_body /var/lib/nginx/tmp/proxy /var/lib/nginx/tmp/fastcgi \
+         /var/lib/nginx/tmp/uwsgi /var/lib/nginx/tmp/scgi /var/lib/nginx/logs /var/log/nginx /run/nginx
 chown -R nginx:nginx /var/lib/nginx /run/nginx /var/log/nginx
+# Diretório atravessável por qualquer usuário; só os temporários ficam restritos ao nginx
+chmod -R 755 /var/lib/nginx
+chmod -R 700 /var/lib/nginx/tmp
 
 cd /
 rm -rf "$BUILD_DIR"
